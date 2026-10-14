@@ -237,11 +237,11 @@ As well as `nodepower`, `nodesetboot`, and by extension `nodeboot`. Other conflu
 
 ### One-time boot
 
-`nodesetboot` without `-p` asks for a one-time boot device. QEMU fixes the boot order when the VM starts, so confluent sets the order and records the one to return to in the VM description; the hookscript `misc/proxmox/confluent-boot-oneshot.pl` from the confluent source puts it back after the next start. Install it on each Proxmox node and attach it to the VMs (attaching a hookscript needs root):
+`nodesetboot` without `-p` asks for a one-time boot device. QEMU fixes the boot order when the VM starts, so confluent sets the order and records the one to return to in the VM description; the hookscript `misc/proxmox/confluent-boot-oneshot.py` from the confluent source puts it back after the next start. Install it on each Proxmox node and attach it to the VMs (attaching a hookscript needs root):
 
 ```console
-# install -m 0755 confluent-boot-oneshot.pl /var/lib/vz/snippets/
-# qm set 101 --hookscript local:snippets/confluent-boot-oneshot.pl
+# install -m 0755 confluent-boot-oneshot.py /var/lib/vz/snippets/
+# qm set 101 --hookscript local:snippets/confluent-boot-oneshot.py
 ```
 
 The restored order applies from the next cold start; a reboot from inside the guest keeps the one-time device. Without the hookscript a one-time request is applied persistently, and `nodesetboot` says so.
