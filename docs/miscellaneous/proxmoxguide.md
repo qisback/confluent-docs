@@ -236,7 +236,7 @@ As well as `nodepower`, `nodesetboot`, and by extension `nodeboot`. The other co
 | Command | On a Proxmox VM |
 |---|---|
 | `nodepower` | on, off (hard stop), shutdown (ACPI), reset, boot. Paused, suspended and hibernated VMs are reported as such, and `on` resumes them. `diag` sends an NMI. |
-| `nodemedia` | `list` shows what the CD-ROM holds; `attach` takes an http(s) URL, which Proxmox downloads to the node's ISO storage, or an existing volume as `pve://storage:iso/name.iso`; `upload` sends a local image; `detachall` empties the CD-ROMs. |
+| `nodemedia` | `list` shows what the CD-ROM holds; `attach` takes an http(s) URL, which Proxmox downloads to the ISO storage, or an existing volume as `pve://storage:iso/name.iso`; `upload` sends a local image; `detachall` empties the CD-ROMs. |
 | `nodehealth` | from the VM's run state and HA state: paused is a warning, an I/O or internal error critical. |
 | `nodesensors` | CPU, memory, disk and network I/O, uptime, and on PVE 9 pressure stall readings. |
 | `nodeeventlog` | the VM's task history from every node of the cluster; it can't be cleared. |
@@ -247,6 +247,12 @@ As well as `nodepower`, `nodesetboot`, and by extension `nodeboot`. The other co
 | `nodereseat` | a hard stop, then start. |
 | `nodeidentify` | adds or removes a `confluent-identify` tag, shown on the VM in the Proxmox web UI. |
 | `nodesupport servicedata` | a tarball of the VM's config, pending changes, status, guest agent view, task history and recent task logs. |
+
+Downloads and uploads go to the first active ISO storage on the VM's node, or to the one named in `custom.pve.isostorage`:
+
+```console
+# nodegroupattrib pvms custom.pve.isostorage=nfs-isos
+```
 
 For PXE discovery of VMs, `nodeinventory -s` (above) stores each VM's UUID; confluent then matches the booting VM's UUID against it.
 
