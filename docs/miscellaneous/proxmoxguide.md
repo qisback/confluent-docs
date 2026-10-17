@@ -178,6 +178,20 @@ A Proxmox API token works as the login too: the token ID (`user@realm!tokenid`) 
 
 confluent pins the certificate of `hardwaremanagement.manager` on first use. When the manager is a confluent node, as `pmx8` above, the pin is kept on it (`pubkeys.tls`); otherwise it is kept on each VM's node (`pubkeys.tls_hardwaremanager`).
 
+### Clusters and HA
+
+`hardwaremanagement.manager` can list several nodes of the same Proxmox cluster, comma separated. Any node answers for every VM in the cluster, so confluent uses the first that responds and moves to the next if it goes away, including under an open console:
+
+```console
+# nodegroupattrib pvms hardwaremanagement.manager=pmx8,pmx9,pmx10
+```
+
+With several managers, define each as a confluent node, as with `pmx8` above, so each keeps its own certificate pin; a VM's node only holds one.
+
+VMs managed by Proxmox HA are started and stopped through the HA manager, which acts a few seconds after the request; `nodepower` waits for it.
+
+`nodebmcreset` logs in to Proxmox again. `nodebmcpassword` changes the Proxmox password of the login confluent uses (shown as BMC user 1) and stores it for every node that uses that login, so none is left with the old one. API tokens have no password; create a new token in Proxmox instead.
+
 To push the ipv4 addresses from net attributes to `/etc/hosts`:
 
 ```console
