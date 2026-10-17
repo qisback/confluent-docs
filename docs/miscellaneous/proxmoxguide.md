@@ -231,7 +231,39 @@ pvm1: Network adapter net0 Model: virtio
 pvm1: Network adapter net0 MAC Address 1: BC:24:11:FF:33:88
 ```
 
-As well as `nodepower`, `nodesetboot`, and by extension `nodeboot`. Other confluent commands are not supported at this time.
+As well as `nodepower`, `nodesetboot`, and by extension `nodeboot`. The other confluent commands map onto the VM through the Proxmox API:
+
+| Command | On a Proxmox VM |
+|---|---|
+| `nodepower` | on, off (hard stop), shutdown (ACPI), reset, boot. Paused, suspended and hibernated VMs are reported as such, and `on` resumes them. `diag` sends an NMI. |
+| `nodemedia` | `list` shows what the CD-ROM holds; `attach` takes an http(s) URL, which Proxmox downloads to the node's ISO storage, or an existing volume as `pve://storage:iso/name.iso`; `upload` sends a local image; `detachall` empties the CD-ROMs. |
+| `nodehealth` | from the VM's run state and HA state: paused is a warning, an I/O or internal error critical. |
+| `nodesensors` | CPU, memory, disk and network I/O, uptime, and on PVE 9 pressure stall readings. |
+| `nodeeventlog` | the VM's task history from every node of the cluster; it can't be cleared. |
+| `nodeinventory` | CPU, memory, NICs, disks, CD-ROMs and TPM from the VM config, plus the guest OS and its addresses when the QEMU guest agent runs. |
+| `nodefirmware` | SeaBIOS or OVMF, the running QEMU and machine type, and the Proxmox version. |
+| `nodestorage` | the VM's disks. |
+| `nodeconfig` | VM settings: cores, sockets, memory, cpu, bios, machine, ostype, onboot, agent and so on. Changes the VM only applies at its next start show as pending. `tpm` adds or removes the TPM; `secure_boot` is read only. An empty value returns a setting to the Proxmox default. The `bmc.*` settings show the Proxmox server, the node running the VM and its VMID. |
+| `nodereseat` | a hard stop, then start. |
+| `nodeidentify` | adds or removes a `confluent-identify` tag, shown on the VM in the Proxmox web UI. |
+| `nodesupport servicedata` | a tarball of the VM's config, pending changes, status, guest agent view, task history and recent task logs. |
+
+For PXE discovery of VMs, `nodeinventory -s` (above) stores each VM's UUID; confluent then matches the booting VM's UUID against it.
+
+### Permissions beyond the base role
+
+| Command | Needs |
+|---|---|
+| `nodeconfig` (set) | VM.Config.CPU, VM.Config.Memory or VM.Config.HWType, as the setting needs |
+| `nodeconfig tpm` | Datastore.AllocateSpace on the disk storage |
+| `nodemedia attach` (a volume), `detachall` | VM.Config.CDROM, and Datastore.Audit on the ISO storage |
+| `nodemedia attach` (a URL) | as above, plus Datastore.AllocateTemplate on the ISO storage and both Sys.Audit and Sys.Modify on `/` |
+| `nodemedia upload` | VM.Config.CDROM, Datastore.Audit and Datastore.AllocateTemplate on the ISO storage |
+| `nodeeventlog`, `nodesupport` | Sys.Audit on the nodes, to see tasks other users started |
+| `nodeinventory` guest details | VM.GuestAgent.Audit (PVE 9) or VM.Monitor (PVE 8) |
+| `nodepower diag` | `root@pam`: Proxmox runs the NMI monitor command for root only |
+
+A command missing a right says which one.
 
 `nodesetboot` takes `network`, `hd`, `cd`, `usb` or `default`, and moves that device class to the front of the VM's boot order; `default` puts disks first and network last. The boot mode never changes the VM's firmware; the reply reports the firmware the VM has.
 
