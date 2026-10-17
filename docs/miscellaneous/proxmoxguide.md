@@ -248,6 +248,8 @@ As well as `nodepower`, `nodesetboot`, and by extension `nodeboot`. The other co
 | `nodeidentify` | adds or removes a `confluent-identify` tag, shown on the VM in the Proxmox web UI. |
 | `nodesupport servicedata` | a tarball of the VM's config, pending changes, status, guest agent view, task history and recent task logs. |
 
+Over a noderange, `nodepower`, `nodehealth` and `nodesensors` read all the VMs on a Proxmox node with one request, so they stay quick across many VMs.
+
 Downloads and uploads go to the first active ISO storage on the VM's node, or to the one named in `custom.pve.isostorage`:
 
 ```console
