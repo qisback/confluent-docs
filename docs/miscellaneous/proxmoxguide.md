@@ -174,7 +174,7 @@ pvm2: secret.hardwaremanagementpassword: ********
 # pveum acl modify /vms --roles Confluent --users confluent@pve
 ```
 
-A Proxmox API token works as the login too: the token ID (`user@realm!tokenid`) as `bmcuser` and the token secret as `bmcpass`. A token cannot open the graphical console, as the Proxmox VNC proxy only accepts a password login's ticket; everything else works. Users with two-factor authentication cannot be used.
+A Proxmox API token works as the login too: the token ID (`user@realm!tokenid`) as `bmcuser` and the token secret as `bmcpass`. A token cannot open the graphical console or take a screenshot, as the Proxmox VNC proxy only accepts a password login's ticket; everything else works. Users with two-factor authentication cannot be used.
 
 confluent pins the certificate of `hardwaremanagement.manager` on first use. When the manager is a confluent node, as `pmx8` above, the pin is kept on it (`pubkeys.tls`); otherwise it is kept on each VM's node (`pubkeys.tls_hardwaremanager`).
 
@@ -226,6 +226,8 @@ pvm2: pvm2
 If you add a serial port to the VM, then you can use `console.method=proxmox` to have a SOL console in `nodeconsole`.  Other than that, the graphics console in proxmox VMs is supported in the confluent webui as well as `nodeconsole`:
 
 ![nodeconsole](../assets/Proxmox/nodeconsole.png)
+
+The confluent web UI also shows a screenshot of the VM's display, read as one frame over the Proxmox VNC proxy. It needs VM.Console, like the console.
 
 Nodeinventory also works:
 
