@@ -178,6 +178,14 @@ A Proxmox API token works as the login too: the token ID (`user@realm!tokenid`) 
 
 confluent pins the certificate of `hardwaremanagement.manager` on first use. When the manager is a confluent node, as `pmx8` above, the pin is kept on it (`pubkeys.tls`); otherwise it is kept on each VM's node (`pubkeys.tls_hardwaremanager`).
 
+Proxmox renews its node certificates from the cluster's own CA. For confluent to accept a renewed certificate rather than refuse it as not the pinned one, add the cluster CA to confluent's site CAs; a certificate it signs for the manager's name then replaces the pin, with a `certautoupdate` entry in the audit log:
+
+```console
+# scp pmx8:/etc/pve/pve-root-ca.pem /var/lib/confluent/public/site/tls/pve-root-ca.pem
+```
+
+With `pubkeys.addpolicy=ca-only`, only certificates the CA signs are accepted. Files under `/var/lib/confluent/public` can be read by deployed nodes, which is fine for a CA certificate.
+
 ### Clusters and HA
 
 `hardwaremanagement.manager` can list several nodes of the same Proxmox cluster, comma separated. Any node answers for every VM in the cluster, so confluent uses the first that responds and moves to the next if it goes away, including under an open console:
