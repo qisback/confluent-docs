@@ -194,7 +194,9 @@ With `pubkeys.addpolicy=ca-only`, only certificates the CA signs are accepted. F
 # nodegroupattrib pvms hardwaremanagement.manager=pmx8,pmx9,pmx10
 ```
 
-With several managers, define each as a confluent node, as with `pmx8` above, so each keeps its own certificate pin; a VM's node only holds one.
+One manager is enough: after logging in, confluent reads the cluster's other online nodes from Proxmox and fails over to them after the ones listed, looking them up again every ten minutes. Listing several still helps if the first is down before confluent has seen the cluster. If the login may not read the cluster status, confluent uses the listed managers only.
+
+The other nodes' certificates verify through the cluster CA (above). Without it, define each manager as a confluent node, as with `pmx8` above, so each keeps its own certificate pin; a VM's node only holds one.
 
 VMs managed by Proxmox HA are started and stopped through the HA manager, which acts a few seconds after the request; `nodepower` waits for it.
 
